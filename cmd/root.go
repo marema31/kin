@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/marema31/kin/cache"
 	"github.com/marema31/kin/server"
 	"github.com/spf13/cobra"
 
@@ -35,7 +36,30 @@ var rootCmd = &cobra.Command{
 func runServer(cmd *cobra.Command, args []string) {
 	parseArguments()
 
-	_ = server.Run(logger, baseURL, rootPath, port)
+	db, err := cache.New()
+	if err != nil {
+		log.Fatalf("Cannot initialize cache: %v", err)
+	}
+
+	//TODO: remove this test datas
+	containers := []cache.ContainerInfo{
+		{Name: "Mon Site 1", URL: "http://localhost/1"},
+		{Name: "Mon Site 2", URL: "http://localhost/2"},
+		{Name: "Mon Site 3", URL: "http://localhost/3"},
+	}
+
+	txn := db.Db.Txn(true)
+
+	for _, c := range containers {
+		if err := txn.Insert("container", c); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	txn.Commit()
+
+	//TODO: do something with the error returned
+	_ = server.Run(logger, db, baseURL, rootPath, port)
 }
 
 // Execute the corresponding cobra sub-command.

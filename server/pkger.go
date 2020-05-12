@@ -56,7 +56,13 @@ func templatedResponsePkger(logReq *logrus.Entry, response http.ResponseWriter, 
 		return
 	}
 
-	err = tmplt.Execute(response, retrieveData())
+	ci, err := database.RetrieveData(logReq)
+	if err != nil {
+		http.Error(response, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	err = tmplt.Execute(response, ci)
 	if err != nil {
 		logReq.Errorf("Error rendering template: %v", err)
 		http.Error(response, "Internal error", http.StatusInternalServerError)
