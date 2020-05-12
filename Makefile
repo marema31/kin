@@ -21,7 +21,8 @@ M = $(shell printf "\033[34;1m▶\033[0m")
 export GO111MODULE=on
 
 .PHONY: all
-all: fmt lint vet golangci-lint | $(BIN) ; $(info $(M) building executable…) @ ## Build program binary
+all: fmt lint vet golangci-lint $(BIN)/pkger | $(BIN) ; $(info $(M) building executable…) @ ## Build program binary
+	$Q $(GO) generate
 	$Q $(GO) build \
 		-tags release \
 		-ldflags '-X $(MODULE)/cmd.version=$(VERSION) -X $(MODULE)/cmd.date=$(DATE) -X $(MODULE)/cmd.commit=$(COMMIT)' \
@@ -42,9 +43,11 @@ $(BIN)/%: | $(BIN) ; $(info $(M) building $(PACKAGE)…)
 		|| ret=$$?; \
 	   rm -rf $$tmp ; exit $$ret
 
+PKGER = $(BIN)/pkger
+$(BIN)/pkger: PACKAGE=github.com/markbates/pkger/cmd/pkger
+
 GOLINT = $(BIN)/golint
 $(BIN)/golint: PACKAGE=golang.org/x/lint/golint
-
 
 GOCOV = $(BIN)/gocov
 $(BIN)/gocov: PACKAGE=github.com/axw/gocov/...

@@ -108,6 +108,7 @@ func parseArguments() {
 	configureLogging()
 
 	baseURL = viper.GetString("base")
+
 	_, err := url.ParseRequestURI(baseURL)
 	if err != nil || strings.Contains(baseURL, ":") {
 		log.Fatal("Base URL non valid, it can only be a relative URL")
