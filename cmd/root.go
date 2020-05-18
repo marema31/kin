@@ -48,16 +48,20 @@ func runServer(cmd *cobra.Command, args []string) {
 		{Name: "Mon Site 3", URL: "http://localhost/3"},
 	}
 
-	txn := db.Db.Txn(true)
-
-	for _, c := range containers {
-		if err := txn.Insert("container", c); err != nil {
-			log.Fatal(err)
-		}
+	err = db.RefreshData(logger, containers)
+	if err != nil {
+		log.Fatalf("Cannot push test data in cache: %v", err)
 	}
 
-	txn.Commit()
-
+	err = db.RefreshData(logger, []cache.ContainerInfo{
+		{Name: "Mon Site 4", URL: "http://localhost/1"},
+		{Name: "Mon Site 5", URL: "http://localhost/2"},
+		{Name: "Mon Site 6", URL: "http://localhost/3"},
+	})
+	if err != nil {
+		log.Fatalf("Cannot push test data in cache: %v", err)
+	}
+	// End TODO TOremove
 	//TODO: do something with the error returned
 	_ = server.Run(logger, db, baseURL, rootPath, port)
 }

@@ -9,7 +9,7 @@ func (c *Cache) RetrieveData(log *logrus.Entry) ([]ContainerInfo, error) {
 	ci := make([]ContainerInfo, 0)
 
 	// Create read-only transaction
-	txn := c.Db.Txn(false)
+	txn := c.db.Txn(false)
 	defer txn.Abort()
 
 	it, err := txn.Get("container", "id")

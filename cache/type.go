@@ -11,8 +11,7 @@ type ContainerInfo struct {
 
 //Cache give access to a in-memory database to allow asynchronous refresh of containers list.
 type Cache struct {
-	//TODO: make it private when writer will be created
-	Db *memdb.MemDB
+	db *memdb.MemDB
 }
 
 //New return a new cache instance.
@@ -38,5 +37,5 @@ func New() (*Cache, error) {
 		panic(err)
 	}
 
-	return &Cache{Db: db}, nil
+	return &Cache{db: db}, nil
 }
