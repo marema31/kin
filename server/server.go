@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -13,6 +14,7 @@ var (
 	base     string
 	database *cache.Cache
 	log      *logrus.Entry
+	server   *http.Server
 	root     string
 )
 
@@ -30,7 +32,7 @@ func preParseRequest(request *http.Request) (string, *logrus.Entry) {
 }
 
 //Run start the kin http server.
-func Run(applog *logrus.Entry, db *cache.Cache, baseURL string, rootPath string, port int) error {
+func Run(ctx context.Context, applog *logrus.Entry, db *cache.Cache, baseURL string, rootPath string, port int) error {
 	applog.Infof("Starting web server on port %d for %s", port, base)
 
 	base = strings.TrimSuffix(baseURL, "/")
@@ -44,5 +46,12 @@ func Run(applog *logrus.Entry, db *cache.Cache, baseURL string, rootPath string,
 		http.HandleFunc(baseURL, handleResponsePkger)
 	}
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	server = &http.Server{Addr: fmt.Sprintf(":%d", port)}
+
+	return server.ListenAndServe()
+}
+
+//Shutdown stop the kin http server.
+func Shutdown(ctx context.Context) error {
+	return server.Shutdown(ctx)
 }

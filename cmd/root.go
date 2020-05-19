@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -10,6 +13,7 @@ import (
 	"github.com/marema31/kin/cache"
 	"github.com/marema31/kin/server"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -18,6 +22,7 @@ import (
 var (
 	baseURL   string
 	cfgFile   string
+	ctx       context.Context
 	debugMode bool
 	path      string
 	port      int
@@ -30,15 +35,15 @@ var rootCmd = &cobra.Command{
 	Short: "Automatic home page for docker hosted web application",
 	Long: `Generate home page with links to web application hosted by
 	the same docker deamon from templates and docker labels.`,
-	Run: runServer,
+	RunE: runServer,
 }
 
-func runServer(cmd *cobra.Command, args []string) {
+func runServer(cmd *cobra.Command, args []string) error {
 	parseArguments()
 
 	db, err := cache.New()
 	if err != nil {
-		log.Fatalf("Cannot initialize cache: %v", err)
+		return fmt.Errorf("cannot initialize cache: %w", err)
 	}
 
 	//TODO: remove this test datas
@@ -48,30 +53,42 @@ func runServer(cmd *cobra.Command, args []string) {
 		{Name: "Mon Site 3", URL: "http://localhost/3"},
 	}
 
-	err = db.RefreshData(logger, containers)
+	err = db.RefreshData(log, containers)
 	if err != nil {
-		log.Fatalf("Cannot push test data in cache: %v", err)
-	}
-
-	err = db.RefreshData(logger, []cache.ContainerInfo{
-		{Name: "Mon Site 4", URL: "http://localhost/1"},
-		{Name: "Mon Site 5", URL: "http://localhost/2"},
-		{Name: "Mon Site 6", URL: "http://localhost/3"},
-	})
-	if err != nil {
-		log.Fatalf("Cannot push test data in cache: %v", err)
+		return fmt.Errorf("cannot push test data in cache: %w", err)
 	}
 	// End TODO TOremove
-	//TODO: do something with the error returned
-	_ = server.Run(logger, db, baseURL, rootPath, port)
+
+	end := make(chan bool, 1)
+	g, ctx := errgroup.WithContext(ctx)
+
+	// Manage graceful shutdown of http server on context cancellation
+	g.Go(func() error {
+		select {
+		case <-ctx.Done():
+			return server.Shutdown(ctx)
+		case <-end:
+			return nil
+		}
+	})
+
+	// Start the http server
+	g.Go(func() error {
+		err := server.Run(ctx, log, db, baseURL, rootPath, port)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			end <- true
+			return err
+		}
+		return nil
+	})
+
+	return g.Wait()
 }
 
 // Execute the corresponding cobra sub-command.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func Execute(c context.Context) error {
+	ctx = c
+	return rootCmd.Execute()
 }
 
 //nolint: errcheck

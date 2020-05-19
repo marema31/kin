@@ -8,16 +8,21 @@ import (
 	"github.com/spf13/viper"
 )
 
-var log = logrus.New()
-var logger = log.WithField("app", "kin")
+var logger = logrus.New()
+var log = logger.WithField("app", "kin")
+
+//GetLogger return log pointer for main package.
+func GetLog() *logrus.Entry {
+	return log
+}
 
 func configureLogging() {
 	level, err := logrus.ParseLevel(viper.GetString("log.level"))
 	if err != nil {
-		logger.Errorf("Error getting level: %v", err)
+		log.Errorf("Error getting level: %v", err)
 	}
 
-	log.SetLevel(level)
+	logger.SetLevel(level)
 
 	logFile := viper.GetString("log.path")
 
@@ -30,25 +35,25 @@ func configureLogging() {
 		formatter = &logrus.TextFormatter{DisableColors: disableColors, FullTimestamp: true, DisableSorting: true}
 	}
 
-	log.SetFormatter(formatter)
+	logger.SetFormatter(formatter)
 
 	if len(logFile) > 0 && logFile != "-" {
 		dir := filepath.Dir(logFile)
 
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			logger.Errorf("Failed to create log path %s: %s", dir, err)
+			log.Errorf("Failed to create log path %s: %s", dir, err)
 		}
 
 		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {
-			logger.Errorf("Error while opening log file %s: %v", logFile, err)
+			log.Errorf("Error while opening log file %s: %v", logFile, err)
 		} else {
-			log.Out = file
+			logger.Out = file
 		}
 
 		logrus.RegisterExitHandler(func() {
 			if err := file.Close(); err != nil {
-				logger.Errorf("Error while closing log: %v", err)
+				log.Errorf("Error while closing log: %v", err)
 			}
 		})
 	}
