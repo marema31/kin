@@ -11,7 +11,7 @@ import (
 var logger = logrus.New()
 var log = logger.WithField("app", "kin")
 
-//GetLogger return log pointer for main package.
+//GetLog return log pointer for main package.
 func GetLog() *logrus.Entry {
 	return log
 }

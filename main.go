@@ -13,6 +13,7 @@ import (
 
 func main() {
 	pkger.Include("/site")
+
 	log := cmd.GetLog()
 
 	// Synchro beetween the main goroutine and the Execution goroutine

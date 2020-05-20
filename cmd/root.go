@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/marema31/kin/cache"
+	"github.com/marema31/kin/collector"
 	"github.com/marema31/kin/server"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -46,20 +47,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("cannot initialize cache: %w", err)
 	}
 
-	//TODO: remove this test datas
-	containers := []cache.ContainerInfo{
-		{Name: "Mon Site 1", URL: "http://localhost/1"},
-		{Name: "Mon Site 2", URL: "http://localhost/2"},
-		{Name: "Mon Site 3", URL: "http://localhost/3"},
-	}
-
-	err = db.RefreshData(log, containers)
-	if err != nil {
-		return fmt.Errorf("cannot push test data in cache: %w", err)
-	}
-	// End TODO TOremove
-
 	end := make(chan bool, 1)
+	ctx, cancel := context.WithCancel(ctx)
 	g, ctx := errgroup.WithContext(ctx)
 
 	// Manage graceful shutdown of http server on context cancellation
@@ -77,6 +66,16 @@ func runServer(cmd *cobra.Command, args []string) error {
 		err := server.Run(ctx, log, db, baseURL, rootPath, port)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			end <- true
+			return err
+		}
+		return nil
+	})
+
+	// Start the collector server
+	g.Go(func() error {
+		err := collector.Run(ctx, log, db)
+		if err != nil {
+			cancel()
 			return err
 		}
 		return nil
