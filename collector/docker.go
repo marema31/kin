@@ -28,7 +28,8 @@ func listContainers(log *logrus.Entry, cli *client.Client, db *cache.Cache) erro
 
 			ci = append(ci, cache.ContainerInfo{
 				Name:  container.Labels["kin_name"],
-				URL:   container.Labels["kin_URL"],
+				URL:   container.Labels["kin_url"],
+				Type:  container.Labels["kin_type"],
 				Group: container.Labels["kin_group"],
 			})
 		}

@@ -7,8 +7,14 @@
   </head>
   <body>
     <ul>
-        {{ range . }}
-        <li><a href="{{.URL}}">{{.Name}}</li>
+        {{ range $group, $containers := . }}
+        <li> {{ $group }}
+          <ul>
+            {{ range $containers}}
+            <li><a href="{{.URL}}" class="{{.Type}}">{{.Name}}</li>
+            {{end}}
+          </ul>
+        </>
         {{end}}
     </ul>
   </body>

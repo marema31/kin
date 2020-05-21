@@ -25,6 +25,7 @@ var (
 	cfgFile   string
 	ctx       context.Context
 	debugMode bool
+	logjson   bool
 	path      string
 	port      int
 	quietMode bool
@@ -94,21 +95,25 @@ func Execute(c context.Context) error {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&baseURL, "base", "b", "/", "base URL (default is '/')")
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.kin.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&baseURL, "base", "b", "/", "base URL ")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default $HOME/.kin.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&debugMode, "debug", "d", false, "log more information")
-	rootCmd.PersistentFlags().StringVarP(&path, "logpath", "l", "-", "log file path (default is '-' for screen")
+	rootCmd.PersistentFlags().BoolVarP(&logjson, "json", "j", false, "JSON-formatted logs")
+	rootCmd.PersistentFlags().StringVarP(&path, "logpath", "l", "-", "log file path ")
 	rootCmd.PersistentFlags().BoolVarP(&quietMode, "quiet", "q", false, "log only errors")
 	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", 8080, "port to listen")
-	rootCmd.PersistentFlags().StringVarP(&rootPath, "root", "r", "", "template root path (default is $HOME/.kin_root)")
+	rootCmd.PersistentFlags().StringVarP(&rootPath, "root", "r", "", "template root path (default $HOME/.kin_root)")
 
 	viper.BindEnv("base", "KIN_BASE")
 	viper.BindEnv("log.path", "KIN_LOGPATH")
+	viper.BindEnv("log.level", "KIN_LOGLEVEL")
+	viper.BindEnv("log.json", "KIN_LOGJSON")
 	viper.BindEnv("port", "KIN_PORT")
 	viper.BindEnv("root", "KIN_ROOT")
 
 	viper.BindPFlag("base", rootCmd.PersistentFlags().Lookup("base"))
 	viper.BindPFlag("log.path", rootCmd.PersistentFlags().Lookup("logpath"))
+	viper.BindPFlag("log.json", rootCmd.PersistentFlags().Lookup("logjson"))
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
 	viper.BindPFlag("root", rootCmd.PersistentFlags().Lookup("root"))
 }
@@ -125,12 +130,14 @@ func initConfig() {
 		viper.SetDefault("rootpath", defaultRootPath)
 	}
 
-	viper.SetDefault("log.json", false)
 	viper.SetDefault("log.level", "info")
 
-	if cfgFile != "" {
+	switch {
+	case cfgFile != "":
 		viper.SetConfigFile(cfgFile)
-	} else {
+	case os.Getenv("KIN_CONFIG") != "":
+		viper.SetConfigFile(os.Getenv("KIN_CONFIG"))
+	default:
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".kin")
 	}

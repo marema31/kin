@@ -6,6 +6,7 @@ import "github.com/hashicorp/go-memdb"
 type ContainerInfo struct {
 	Group string
 	Name  string
+	Type  string
 	URL   string
 }
 

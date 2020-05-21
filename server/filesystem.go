@@ -20,7 +20,7 @@ func templatedResponseFile(logReq *logrus.Entry, response http.ResponseWriter, t
 		return
 	}
 
-	ci, err := database.RetrieveData(logReq)
+	ci, err := prepareData(logReq)
 	if err != nil {
 		http.Error(response, "Internal error", http.StatusInternalServerError)
 		return

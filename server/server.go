@@ -18,6 +18,27 @@ var (
 	root     string
 )
 
+type tplData map[string][]cache.ContainerInfo
+
+func prepareData(log *logrus.Entry) (tplData, error) {
+	data := tplData{}
+
+	ci, err := database.RetrieveData(log)
+	if err != nil {
+		return data, err
+	}
+
+	for _, container := range ci {
+		if _, ok := data[container.Group]; !ok {
+			data[container.Group] = make([]cache.ContainerInfo, 0)
+		}
+
+		data[container.Group] = append(data[container.Group], container)
+	}
+
+	return data, nil
+}
+
 func preParseRequest(request *http.Request) (string, *logrus.Entry) {
 	path := request.URL.Path
 	path = "/site" + strings.TrimPrefix(path, base)
