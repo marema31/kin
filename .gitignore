@@ -1,5 +1,6 @@
 #File generated
 pkged.go
+coverage.txt
 
 # Binaries for programs and plugins
 *.exe
