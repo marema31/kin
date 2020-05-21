@@ -1,3 +1,5 @@
+export PATH := bin:$(PATH)
+
 MODULE   = $(shell env GO111MODULE=on $(GO) list -m)
 DATE    ?= $(shell date +%FT%T%z)
 COMMIT  ?= $(shell git show --format='%H' --head -q* 2> /dev/null )

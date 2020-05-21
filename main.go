@@ -1,4 +1,4 @@
-//go:generate bin/pkger
+//go:generate pkger
 
 package main
 
