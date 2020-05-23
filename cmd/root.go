@@ -30,6 +30,7 @@ var (
 	port      int
 	quietMode bool
 	rootPath  string
+	swarmMode bool
 )
 
 var rootCmd = &cobra.Command{
@@ -74,7 +75,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 
 	// Start the collector server
 	g.Go(func() error {
-		err := collector.Run(ctx, log, db)
+		err := collector.Run(ctx, log, db, swarmMode)
 		if err != nil {
 			cancel()
 			return err
@@ -103,6 +104,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&quietMode, "quiet", "q", false, "log only errors")
 	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", 8080, "port to listen")
 	rootCmd.PersistentFlags().StringVarP(&rootPath, "root", "r", "", "template root path (default $HOME/.kin_root)")
+	rootCmd.PersistentFlags().BoolVarP(&swarmMode, "swarm", "s", false, "Docker swarm")
 
 	viper.BindEnv("base", "KIN_BASE")
 	viper.BindEnv("log.path", "KIN_LOGPATH")
@@ -110,12 +112,14 @@ func init() {
 	viper.BindEnv("log.json", "KIN_LOGJSON")
 	viper.BindEnv("port", "KIN_PORT")
 	viper.BindEnv("root", "KIN_ROOT")
+	viper.BindEnv("swarm", "KIN_SWARM")
 
 	viper.BindPFlag("base", rootCmd.PersistentFlags().Lookup("base"))
 	viper.BindPFlag("log.path", rootCmd.PersistentFlags().Lookup("logpath"))
-	viper.BindPFlag("log.json", rootCmd.PersistentFlags().Lookup("logjson"))
+	viper.BindPFlag("log.json", rootCmd.PersistentFlags().Lookup("json"))
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
 	viper.BindPFlag("root", rootCmd.PersistentFlags().Lookup("root"))
+	viper.BindPFlag("swarm", rootCmd.PersistentFlags().Lookup("swarm"))
 }
 
 func initConfig() {

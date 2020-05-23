@@ -24,6 +24,7 @@ Flags (short form)             | Env var      |File entry | meaning
   `--logpath <path> (-l) `     |`KIN_LOGPATH` |`log.path` | Log file path (default "-" for screen)
   `--port int (-p)       `     |`KIN_PORT`    |`port`     | Port to listen (default 8080)
   `--root <path> (-r)    `     |`KIN_ROOT`    |`root`     | Template root path (default is $HOME/.kin_root)
+  `--swarm               `     |`KIN_SWARM`   |`swarm`    | Docker swarm
 
 
 ### Site structure
