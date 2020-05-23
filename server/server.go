@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/marema31/kin/cache"
@@ -18,14 +19,24 @@ var (
 	root     string
 )
 
-type tplData map[string][]cache.ContainerInfo
+type tplData struct {
+	Containers   map[string][]cache.ContainerInfo
+	Environments map[string]string
+}
 
 func prepareData(log *logrus.Entry) (tplData, error) {
-	data := tplData{}
+	env := make(map[string]string)
+
+	for _, v := range os.Environ() {
+		splitV := strings.Split(v, "=")
+		env[splitV[0]] = splitV[1]
+	}
+
+	data := make(map[string][]cache.ContainerInfo)
 
 	ci, err := database.RetrieveData(log)
 	if err != nil {
-		return data, err
+		return tplData{}, err
 	}
 
 	for _, container := range ci {
@@ -36,7 +47,7 @@ func prepareData(log *logrus.Entry) (tplData, error) {
 		data[container.Group] = append(data[container.Group], container)
 	}
 
-	return data, nil
+	return tplData{Containers: data, Environments: env}, nil
 }
 
 func preParseRequest(request *http.Request) (string, *logrus.Entry) {

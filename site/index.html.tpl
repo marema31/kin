@@ -7,7 +7,7 @@
   </head>
   <body>
     <ul>
-        {{ range $group, $containers := . }}
+        {{ range $group, $containers := .Containers }}
         <li> {{ $group }}
           <ul>
             {{ range $containers}}

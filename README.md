@@ -35,10 +35,13 @@ Template are not limited to HTML file, it could be any text format (Javascript, 
 See the `site` folder in this repository for an example of site structure.
 
 ### Template files
-For template, `kin` provides a of array of structures, one by container, the attributes of the structure corresponding to the labels found on the containers with `kin_name` label. To use a attribute, the template should only contains `{{.AttributeName}}`. 
+For template, `kin` provides :
+    * `.Containers` : array of list of containers information indexed by `kin_group` label value. Only containers with `kin_name` label will be added to the list.
+    * `.Environments`: array of environment variables indexed by the environment variable name.
 
-For each `kin_group` label found, `kin` will provides a list of containers informations,
-Only containers with `kin_name` label will be added to the list.
+Each entry of `.Containers` is an list of all the container informations with the same `kin_group` label.
+    
+Container informations correspond to the labels found on the containers with `kin_name` label. To use a attribute, the template should only contains `{{.AttributeName}}`. 
 
  Available attributes for a container are: 
 
@@ -49,15 +52,16 @@ Attribute | Label
 `Type`    | `kin_type`
 `URL`     | `kin_url`
 
-All containers with `kin_name` label and without `kin_group` label will be placed in "" list.
+All containers with `kin_name` label and without `kin_group` label will be placed in `""` entry of `.Containers`.
 
 Kin use Golang templating system that provides [more features](https://golang.org/pkg/html/template/).
 
 #### Example using groups
 ```html
  <body>
+     <h1> {{index .Environments "USER"}}'s home lab</h1>
      <ul>
-        {{ range $group, $containers := . }}
+        {{ range $group, $containers := .Containers }}
         <li> {{ $group }}
           <ul>
             {{ range $containers}}
@@ -74,7 +78,7 @@ Kin use Golang templating system that provides [more features](https://golang.or
 ```html
  <body>
      <ul>
-         {{ range index . "" }}
+         {{ range index .Containers "" }}
          <li><a href="{{.URL}}" class="{{.Type}}">{{.Name}}</li>
         {{end}}
     </ul>

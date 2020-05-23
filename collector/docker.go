@@ -100,6 +100,12 @@ func Run(ctx context.Context, log *logrus.Entry, db *cache.Cache, swarmMode bool
 		return err
 	}
 
+	//Initialize the list
+	err = refreshList(ctx, log, cli, db, swarmMode)
+	if err != nil {
+		return err
+	}
+
 	ticker := time.NewTicker(10 * time.Second) //nolint: gomnd
 	defer ticker.Stop()
 
