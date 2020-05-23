@@ -1,13 +1,14 @@
 package server
 
 import (
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
-	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/markbates/pkger"
 	"github.com/markbates/pkger/pkging"
 	"github.com/sirupsen/logrus"
@@ -48,7 +49,7 @@ func templatedResponsePkger(logReq *logrus.Entry, response http.ResponseWriter, 
 		return
 	}
 
-	tmplt, err := template.New(tmplName).Parse(string(tmplContent))
+	tmplt, err := template.New(tmplName).Funcs(sprig.FuncMap()).Parse(string(tmplContent))
 	if err != nil {
 		logReq.Errorf("Error parsing template: %v", err)
 		http.Error(response, "Internal error", http.StatusInternalServerError)
@@ -89,6 +90,8 @@ func rawResponsePkger(logReq *logrus.Entry, response http.ResponseWriter, reques
 
 func handleResponsePkger(response http.ResponseWriter, request *http.Request) {
 	path, logReq := preParseRequest(request)
+
+	path = "/site" + path
 
 	fi, err := pkger.Stat(path)
 	if err == nil && !fi.IsDir() {

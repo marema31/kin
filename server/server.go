@@ -52,7 +52,7 @@ func prepareData(log *logrus.Entry) (tplData, error) {
 
 func preParseRequest(request *http.Request) (string, *logrus.Entry) {
 	path := request.URL.Path
-	path = "/site" + strings.TrimPrefix(path, base)
+	path = strings.TrimPrefix(path, base)
 
 	logReq := log.WithField("path", path)
 

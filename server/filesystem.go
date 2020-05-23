@@ -1,17 +1,18 @@
 package server
 
 import (
+	"html/template"
 	"net/http"
 	"os"
 	"path"
-	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/sirupsen/logrus"
 )
 
 func templatedResponseFile(logReq *logrus.Entry, response http.ResponseWriter, tmplPath string) {
 	tmplName := path.Base(tmplPath)
-	tmplt, err := template.New(tmplName).ParseFiles(tmplPath)
+	tmplt, err := template.New(tmplName).Funcs(sprig.FuncMap()).ParseFiles(tmplPath)
 
 	if err != nil {
 		logReq.Errorf("Error parsing template: %v", err)

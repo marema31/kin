@@ -1,6 +1,8 @@
 # kin
 Automatic home page for docker hosted web applications.
 
+![screenshot](/screenshot.png?raw=true)
+
 Serve a templated web site with variables populated from specific labels on containers. The list of variables are refresh every 10 seconds.
 Default site delivered by `kin`can be replaced by your own site.
 
@@ -54,7 +56,7 @@ Attribute | Label
 
 All containers with `kin_name` label and without `kin_group` label will be placed in `""` entry of `.Containers`.
 
-Kin use Golang templating system that provides [more features](https://golang.org/pkg/html/template/).
+Kin use Golang templating system that provides [more features](https://golang.org/pkg/html/template/). Kin also use [Sprig](http://masterminds.github.io/sprig/) library that offer more features to the templating system.
 
 #### Example using groups
 ```html
