@@ -17,6 +17,7 @@ func parseLabel(log *logrus.Entry, name string, labels map[string]string) (cache
 		log.Debugf("Found %v", name)
 
 		return cache.ContainerInfo{
+			Id:    name,
 			Name:  labels["kin_name"],
 			URL:   labels["kin_url"],
 			Type:  labels["kin_type"],

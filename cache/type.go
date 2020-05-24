@@ -4,6 +4,7 @@ import "github.com/hashicorp/go-memdb"
 
 //ContainerInfo list of information to be printed for a container.
 type ContainerInfo struct {
+	Id    string
 	Group string
 	Name  string
 	Type  string
@@ -25,7 +26,7 @@ func New() (*Cache, error) {
 					"id": {
 						Name:    "id",
 						Unique:  true,
-						Indexer: &memdb.StringFieldIndex{Field: "Name"},
+						Indexer: &memdb.StringFieldIndex{Field: "Id"},
 					},
 				},
 			},
