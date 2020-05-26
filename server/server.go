@@ -85,5 +85,9 @@ func Run(ctx context.Context, applog *logrus.Entry, db *cache.Cache, baseURL str
 
 //Shutdown stop the kin http server.
 func Shutdown(ctx context.Context) error {
-	return server.Shutdown(ctx)
+	if server != nil {
+		return server.Shutdown(ctx)
+	}
+
+	return nil
 }
