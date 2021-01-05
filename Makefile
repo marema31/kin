@@ -33,8 +33,7 @@ all: fmt lint vet golangci-lint $(BIN)/pkger | $(BIN) ; $(info $(M) building exe
 .PHONY: static
 static: fmt lint vet golangci-lint $(BIN)/pkger | $(BIN) ; $(info $(M) building executable…) @ ## Build program binary
 	$Q $(GO) generate
-	$Q ls pkged.go
-	$Q CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build \
+	$Q CGO_ENABLED=0 $(GO) build -v\
 		-tags release \
 		-ldflags '-X $(MODULE)/cmd.version=$(VERSION) -X $(MODULE)/cmd.date=$(DATE) -X $(MODULE)/cmd.commit=$(COMMIT)' \
 		-gcflags 'all=-N -l' \

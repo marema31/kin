@@ -6,7 +6,7 @@ Automatic home page for docker hosted web applications.
 Serve a templated web site with variables populated from specific labels on containers. The list of variables are refresh every 10 seconds.
 Default site delivered by `kin`can be replaced by your own site.
 
-`kin` is perfect for development environment or home-lab to quickly provides a dynamic bookmarks to all containers availables on the docker daemon. It is not meant to be use in production environment. 
+`kin` is perfect for development environment or home-lab to quickly provides a dynamic bookmarks to all containers availables on the docker daemon. It is not meant to be use in production environment.
 
 `kin` will not proxy your site, but you can use it alongside [Traefik](https://containo.us/traefik/) to have fully automatic configuration.
 
@@ -22,7 +22,7 @@ Flags (short form)             | Env var      |File entry | meaning
   `--base <URL path> (-b)`     |`KIN_BASE`    |`base`     | Base URL (default "/")
   `--config <path> (-c)  `     |`KIN_CONFIG`  |           | Config file without extension (default is $HOME/.kin.yaml)
   `--debug (-d) / --quiet (-q)`|`KIN_LOGLEVEL`|`log.level`| Log more information / Log only errors
-  `--json (-j) `               |`KIN_JSON`    |`log.json` | In present logs are JSON-formatted
+  `--json (-j) `               |`KIN_JSON`    |`log.json` | If present logs are JSON-formatted
   `--logpath <path> (-l) `     |`KIN_LOGPATH` |`log.path` | Log file path (default "-" for screen)
   `--port int (-p)       `     |`KIN_PORT`    |`port`     | Port to listen (default 8080)
   `--root <path> (-r)    `     |`KIN_ROOT`    |`root`     | Template root path (default is $HOME/.kin_root)
@@ -42,10 +42,10 @@ For template, `kin` provides :
     * `.Environments`: array of environment variables indexed by the environment variable name.
 
 Each entry of `.Containers` is an list of all the container informations with the same `kin_group` label.
-    
-Container informations correspond to the labels found on the containers with `kin_name` label. To use a attribute, the template should only contains `{{.AttributeName}}`. 
 
- Available attributes for a container are: 
+Container informations correspond to the labels found on the containers with `kin_name` label. To use a attribute, the template should only contains `{{.AttributeName}}`.
+
+ Available attributes for a container are:
 
 Attribute | Label
 ----------|-----------
@@ -93,7 +93,7 @@ docker run --rm --label 'kin_name=front' --label 'kin_group=dev' --label 'kin_ty
 
 #### Adding labels on container: docker-compose
 ```yaml
-front: 
+front:
   image: nginx
   labels:
     - "kin_name=front"
@@ -133,7 +133,7 @@ make
 
 ## Contribution
 I've made this project as a real use case to learn Golang.
-I've tried to adopt the Go mindset but I'm sure that other gophers could do better. 
+I've tried to adopt the Go mindset but I'm sure that other gophers could do better.
 
 If this project can be useful for you, feel free to open issues, propose documentation updates or even pull request.
 
